@@ -1,16 +1,15 @@
 class Automation {
     constructor(botInstance, socket) {
-        this.bot = botInstance;
+        this.bot = botInstance.bot;
         this.socket = socket;
         this.isRunning = false;
         this.cycleCount = 0;
-        
-        this.socket.on('automation-data', (data) => {
-            this.start(data);
-        });
+        this.taskInterval = null;
     }
     
-    async start(config) {
+    start(config) {
+        if (this.isRunning) return;
+        
         this.isRunning = true;
         this.config = config;
         
@@ -19,80 +18,75 @@ class Automation {
             message: '🔄 Otomasyon başlatıldı!'
         });
         
-        while (this.isRunning && this.bot.isConnected) {
-            try {
-                await this.executeCycle();
-                this.cycleCount++;
-                this.socket.emit('automation-cycle', {
-                    count: this.cycleCount,
-                    message: `✅ Döngü ${this.cycleCount} tamamlandı`
-                });
-                
-                await this.sleep(2000); // 2 saniye bekle
-                
-            } catch (error) {
-                this.socket.emit('automation-error', {
-                    message: `❌ Döngü hatası: ${error.message}`
-                });
-                await this.sleep(3000); // Hata durumunda 3 saniye bekle
-            }
-        }
+        this.socket.emit('chat-message', {
+            type: 'system',
+            message: `⚙️ Otomasyon başlatıldı! Sandık: ${config.chestCoords.x},${config.chestCoords.y},${config.chestCoords.z}`,
+            sender: 'Otomasyon'
+        });
+        
+        // Simülasyon modunda çalış
+        this.taskInterval = setInterval(() => {
+            this.executeCycle();
+        }, 5000);
     }
     
     async executeCycle() {
-        // Demo için basit döngü mantığı
-        this.socket.emit('chat-message', {
-            type: 'system',
-            message: `📍 Sandığa gidiliyor: X=${this.config.chestCoords.x}, Y=${this.config.chestCoords.y}, Z=${this.config.chestCoords.z}`,
-            sender: 'Otomasyon'
-        });
+        if (!this.isRunning || !this.bot) return;
         
-        await this.sleep(1000);
-        
-        this.socket.emit('chat-message', {
-            type: 'system',
-            message: `📦 Sandık açılıyor ve eşyalar alınıyor...`,
-            sender: 'Otomasyon'
-        });
-        
-        await this.sleep(1000);
-        
-        this.socket.emit('chat-message', {
-            type: 'system',
-            message: `🎯 Hedefe gidiliyor: X=${this.config.targetCoords.x}, Y=${this.config.targetCoords.y}, Z=${this.config.targetCoords.z}`,
-            sender: 'Otomasyon'
-        });
-        
-        await this.sleep(1000);
-        
-        this.socket.emit('chat-message', {
-            type: 'system',
-            message: `⚡ Blok aktifleştiriliyor...`,
-            sender: 'Otomasyon'
-        });
-        
-        await this.sleep(1000);
-        
-        this.socket.emit('chat-message', {
-            type: 'system',
-            message: `🗑️ Envanter boşaltma noktasına gidiliyor...`,
-            sender: 'Otomasyon'
-        });
-        
-        await this.sleep(1000);
-        
-        this.socket.emit('chat-message', {
-            type: 'system',
-            message: `✅ Envanter boşaltıldı!`,
-            sender: 'Otomasyon'
-        });
+        try {
+            this.cycleCount++;
+            
+            // Demo mesajları gönder
+            const messages = [
+                `🔄 Döngü ${this.cycleCount} başladı`,
+                `📍 Sandığa gidiliyor: X=${this.config.chestCoords.x}, Y=${this.config.chestCoords.y}, Z=${this.config.chestCoords.z}`,
+                `📦 Sandık açılıyor...`,
+                `🎯 Hedefe gidiliyor: X=${this.config.targetCoords.x}, Y=${this.config.targetCoords.y}, Z=${this.config.targetCoords.z}`,
+                `⚡ Blok aktifleştiriliyor...`,
+                `🗑️ Envanter boşaltılıyor...`,
+                `✅ Döngü ${this.cycleCount} tamamlandı!`
+            ];
+            
+            for (const msg of messages) {
+                if (!this.isRunning) break;
+                
+                this.socket.emit('chat-message', {
+                    type: 'automation',
+                    message: msg,
+                    sender: 'Otomasyon'
+                });
+                
+                await this.sleep(500);
+            }
+            
+            this.socket.emit('automation-cycle', {
+                count: this.cycleCount,
+                message: `✅ Döngü ${this.cycleCount} tamamlandı`
+            });
+            
+        } catch (error) {
+            this.socket.emit('automation-error', {
+                message: `❌ Otomasyon hatası: ${error.message}`
+            });
+        }
     }
     
     stop() {
         this.isRunning = false;
+        if (this.taskInterval) {
+            clearInterval(this.taskInterval);
+            this.taskInterval = null;
+        }
+        
         this.socket.emit('automation-status', {
             status: 'durduruldu',
             message: '⏹️ Otomasyon durduruldu'
+        });
+        
+        this.socket.emit('chat-message', {
+            type: 'system',
+            message: '⏹️ Otomasyon durduruldu',
+            sender: 'Otomasyon'
         });
     }
     
