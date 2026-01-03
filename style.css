@@ -8,6 +8,7 @@
     --darker: #0a0a0a;
     --card-bg: #1e1e1e;
     --border: #2d2d2d;
+    --hover: #3d3d3d;
     --text: #ffffff;
     --text-secondary: #b0b0b0;
 }
@@ -294,10 +295,34 @@ body {
 .command-input {
     display: flex;
     gap: 0.5rem;
+    margin-bottom: 1rem;
 }
 
 .command-input input {
     flex: 1;
+}
+
+/* Quick Commands */
+.quick-commands {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.quick-command {
+    padding: 6px 12px;
+    background: var(--border);
+    border: none;
+    border-radius: 4px;
+    color: var(--text);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.quick-command:hover {
+    background: var(--primary);
+    transform: translateY(-1px);
 }
 
 /* Dashboard */
@@ -462,11 +487,40 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
 .terminal-controls {
     display: flex;
-    gap: 0.5rem;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.filter-buttons {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    padding: 4px 8px;
+    background: var(--border);
+    border: none;
+    border-radius: 4px;
+    color: var(--text);
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.filter-btn.active {
+    background: var(--primary);
+}
+
+.filter-btn:hover {
+    background: var(--hover);
 }
 
 .terminal-content {
@@ -480,47 +534,111 @@ body {
 }
 
 .log-entry {
-    margin-bottom: 0.5rem;
-    padding: 0.5rem;
-    border-radius: 4px;
+    margin-bottom: 8px;
+    padding: 8px 12px;
+    border-radius: 6px;
     display: flex;
     gap: 10px;
     align-items: flex-start;
     flex-wrap: wrap;
+    border-left: 3px solid transparent;
+    transition: background 0.3s;
 }
 
 .log-entry:hover {
     background: rgba(255, 255, 255, 0.05);
 }
 
+/* Log tipine göre border rengi */
+.log-entry.system {
+    border-left-color: var(--info);
+    background: rgba(26, 188, 156, 0.1);
+}
+
+.log-entry.chat,
+.log-entry.player-chat {
+    border-left-color: var(--primary);
+    background: rgba(52, 152, 219, 0.1);
+}
+
+.log-entry.server-message {
+    border-left-color: #9b59b6;
+    background: rgba(155, 89, 182, 0.1);
+}
+
+.log-entry.command {
+    border-left-color: var(--warning);
+    background: rgba(243, 156, 18, 0.1);
+}
+
+.log-entry.error {
+    border-left-color: var(--danger);
+    background: rgba(231, 76, 60, 0.1);
+}
+
+.log-entry.success {
+    border-left-color: var(--success);
+    background: rgba(46, 204, 113, 0.1);
+}
+
+.log-entry.automation {
+    border-left-color: #8e44ad;
+    background: rgba(142, 68, 173, 0.1);
+}
+
+.log-entry.system-message {
+    border-left-color: var(--info);
+    background: rgba(26, 188, 156, 0.1);
+}
+
+.log-entry.chat-packet {
+    border-left-color: #3498db;
+    background: rgba(52, 152, 219, 0.05);
+}
+
+/* Log tipleri için renkler */
+.log-type {
+    font-weight: bold;
+    min-width: 100px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.3);
+    text-align: center;
+}
+
 .timestamp {
     color: #666;
     min-width: 70px;
+    font-size: 0.85rem;
 }
 
-.log-type {
+/* Mesaj gönderen */
+.sender {
     font-weight: bold;
-    min-width: 80px;
+    color: #f1c40f;
+    min-width: 100px;
 }
 
-.log-entry.system .log-type { color: var(--info); }
-.log-entry.chat .log-type { color: var(--primary); }
-.log-entry.command .log-type { color: var(--warning); }
-.log-entry.error .log-type { color: var(--danger); }
-.log-entry.success .log-type { color: var(--success); }
+.log-message {
+    flex: 1;
+    word-break: break-word;
+}
 
+/* Terminal input güncellendi */
 .terminal-input {
     display: flex;
     align-items: center;
-    padding: 1rem;
+    padding: 12px;
     background: var(--darker);
     border-top: 1px solid var(--border);
+    gap: 10px;
 }
 
 .input-prefix {
     color: var(--success);
-    margin-right: 10px;
+    margin-right: 5px;
     font-weight: bold;
+    font-size: 1rem;
 }
 
 .terminal-input input {
@@ -528,12 +646,14 @@ body {
     background: transparent;
     border: none;
     color: var(--text);
-    font-family: 'Courier New', monospace;
+    font-family: inherit;
     font-size: 1rem;
+    padding: 8px;
 }
 
 .terminal-input input:focus {
     outline: none;
+    border-bottom: 1px solid var(--primary);
 }
 
 /* Footer */
@@ -559,6 +679,22 @@ body {
     gap: 1rem;
     color: var(--text-secondary);
     font-size: 0.9rem;
+}
+
+.text-success {
+    color: var(--success) !important;
+}
+
+.text-danger {
+    color: var(--danger) !important;
+}
+
+.text-warning {
+    color: var(--warning) !important;
+}
+
+.text-info {
+    color: var(--info) !important;
 }
 
 /* Responsive Design */
@@ -635,6 +771,35 @@ body {
     .right-panel {
         padding-top: 60px;
     }
+    
+    .terminal-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .terminal-controls {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .filter-buttons {
+        width: 100%;
+        justify-content: center;
+        margin-top: 10px;
+    }
+    
+    .log-entry {
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .timestamp, .log-type, .sender {
+        font-size: 0.8rem;
+    }
+    
+    .quick-commands {
+        justify-content: center;
+    }
 }
 
 /* Scrollbar */
@@ -653,7 +818,7 @@ body {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #555;
+    background: var(--hover);
 }
 
 /* Animations */
@@ -662,8 +827,17 @@ body {
     to { opacity: 1; }
 }
 
+@keyframes highlight {
+    0% { background-color: rgba(52, 152, 219, 0.3); }
+    100% { background-color: transparent; }
+}
+
 .fade-in {
     animation: fadeIn 0.3s ease;
+}
+
+.highlight {
+    animation: highlight 1s ease;
 }
 
 /* Toastify Custom */
@@ -671,15 +845,21 @@ body {
     background: var(--card-bg);
     border-left: 4px solid var(--primary);
     font-family: inherit;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
-/* Utility Classes */
-.text-success { color: var(--success); }
-.text-danger { color: var(--danger); }
-.text-warning { color: var(--warning); }
-.text-info { color: var(--info); }
+.toast-success {
+    border-left-color: var(--success) !important;
+}
 
-.bg-success { background: var(--success); }
-.bg-danger { background: var(--danger); }
-.bg-warning { background: var(--warning); }
-.bg-info { background: var(--info); }
+.toast-error {
+    border-left-color: var(--danger) !important;
+}
+
+.toast-warning {
+    border-left-color: var(--warning) !important;
+}
+
+.toast-info {
+    border-left-color: var(--info) !important;
+    }
